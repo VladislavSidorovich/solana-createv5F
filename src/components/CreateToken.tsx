@@ -49,6 +49,17 @@ export const CreateToken: FC = () => {
   const [revokeMintAuthority, setRevokeMintAuthority] = useState(false);
   const [revokeFreezeAuthority, setRevokeFreezeAuthority] = useState(false);
 
+
+
+  const [website, setWebsite] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [discord, setDiscord] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [currentTag, setCurrentTag] = useState("");
+
+  const [showSocialSection, setShowSocialSection] = useState(false);
+
   // Process state
   const [tokenMintAddress, setTokenMintAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -93,13 +104,36 @@ export const CreateToken: FC = () => {
       
       const imageData = await imageResponse.json();
       const imageUri = `https://ipfs.io/ipfs/${imageData.IpfsHash}`;
-
+  
       // Create and upload metadata JSON
       const metadata = {
         name: tokenName,
         symbol: tokenSymbol,
         description: tokenDescription,
         image: imageUri,
+        external_url: website || undefined,
+        properties: {
+          category: "token",
+          links: [
+            website && { name: "website", url: website },
+            telegram && { name: "telegram", url: telegram },
+            discord && { name: "discord", url: discord },
+            twitter && { name: "twitter", url: twitter },
+          ].filter(Boolean),
+          tags: tags.length > 0 ? tags : undefined,
+          // Добавляем дополнительные стандартные поля
+          creators: [
+            {
+              address: publicKey.toString(),
+              share: 100,
+            },
+          ],
+        },
+        // Добавляем совместимость с различными стандартами
+        attributes: tags.map(tag => ({
+          trait_type: "tag",
+          value: tag,
+        })),
       };
       
       const metadataResponse = await fetch(
@@ -327,7 +361,7 @@ export const CreateToken: FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Create New Token</h1>
-
+  
       {!tokenMintAddress ? (
         <div className="space-y-6">
           {/* Token Image Upload */}
@@ -382,7 +416,7 @@ export const CreateToken: FC = () => {
               )}
             </div>
           </div>
-
+  
           {/* Token Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -394,7 +428,7 @@ export const CreateToken: FC = () => {
                 placeholder="My Awesome Token"
               />
             </div>
-
+  
             <div>
               <label className="block mb-2 font-medium">Token Symbol*</label>
               <input
@@ -404,7 +438,7 @@ export const CreateToken: FC = () => {
                 placeholder="MAT"
               />
             </div>
-
+  
             <div>
               <label className="block mb-2 font-medium">Description</label>
               <input
@@ -414,7 +448,7 @@ export const CreateToken: FC = () => {
                 placeholder="Describe your token"
               />
             </div>
-
+  
             <div>
               <label className="block mb-2 font-medium">Decimals</label>
               <input
@@ -426,7 +460,7 @@ export const CreateToken: FC = () => {
                 max={18}
               />
             </div>
-
+  
             <div>
               <label className="block mb-2 font-medium">Initial Supply</label>
               <input
@@ -436,7 +470,127 @@ export const CreateToken: FC = () => {
               />
             </div>
           </div>
+  
+          {/* Social Links & Tags */}
+        <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl font-bold">Add Social Links & Tags</h2>
+          
+          {/* Контейнер переключателя (теперь справа) */}
+          <div 
+            onClick={() => setShowSocialSection(!showSocialSection)}
+            className={`
+              relative w-12 h-6 rounded-full p-1 cursor-pointer
+              border-2 border-white bg-transparent
+            `}
+          >
+            {/* Белый кружок */}
+            <div
+              className={`
+                absolute top-1/2 -translate-y-1/2
+                w-4 h-4 rounded-full bg-white
+                transform transition-all duration-300
+                ${showSocialSection ? 'right-1' : 'left-1'}
+              `}
+            />
+          </div>
+        </div>
 
+        {showSocialSection && (
+          <>
+            <div>
+              <label className="block mb-2 font-medium">Website</label>
+              <input
+                className="w-full p-3 text-gray-700 border rounded-lg"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                placeholder="https://"
+                type="url"
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Telegram</label>
+              <input
+                className="w-full p-3 text-gray-700 border rounded-lg"
+                value={telegram}
+                onChange={(e) => setTelegram(e.target.value)}
+                placeholder="https://t.me/"
+                type="url"
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Discord</label>
+              <input
+                className="w-full p-3 text-gray-700 border rounded-lg"
+                value={discord}
+                onChange={(e) => setDiscord(e.target.value)}
+                placeholder="https://discord.com/"
+                type="url"
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Twitter</label>
+              <input
+                className="w-full p-3 text-gray-700 border rounded-lg"
+                value={twitter}
+                onChange={(e) => setTwitter(e.target.value)}
+                placeholder="https://twitter.com/"
+                type="url"
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Tags ({tags.length}/5)</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  className="flex-1 p-3 text-gray-700 border rounded-lg"
+                  value={currentTag}
+                  onChange={(e) => setCurrentTag(e.target.value)}
+                  placeholder="Add a tag..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && currentTag && tags.length < 5) {
+                      setTags([...tags, currentTag]);
+                      setCurrentTag('');
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (currentTag && tags.length < 5) {
+                      setTags([...tags, currentTag]);
+                      setCurrentTag('');
+                    }
+                  }}
+                  className="px-4 bg-gray-200 rounded-lg hover:bg-gray-300 text-black"
+                  disabled={!currentTag || tags.length >= 5}
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <div key={index} className="flex items-center text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                      className="ml-2 text-black hover:text-gray-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Maximum 5 Tags - Frequently used tags: meme, memecoin, airdrop, token, nft, cat, dog.
+              </p>
+            </div>
+          </>
+        )}
+          </div>
+  
           {/* Authority Options */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 border rounded-lg">
@@ -455,7 +609,7 @@ export const CreateToken: FC = () => {
                 </span>
               </label>
             </div>
-
+  
             <div className="p-4 border rounded-lg">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -473,7 +627,7 @@ export const CreateToken: FC = () => {
               </label>
             </div>
           </div>
-
+  
           {/* Fee Summary */}
           <div className="p-4 bg-transparent rounded-lg ">
             <div className="flex justify-between items-center">
@@ -486,7 +640,7 @@ export const CreateToken: FC = () => {
               <div className="text-2xl font-bold">{totalFee} SOL</div>
             </div>
           </div>
-
+  
           {/* Create Button */}
           <button
             onClick={handleCreateToken}
