@@ -13,12 +13,11 @@ const nextConfig = {
           {
             key: 'Wallet-Standard',
             value: JSON.stringify({
-              name: "Your DApp Name", // Замените на название проекта
+              name: "TOkenTol", // Замените на название проекта
               icon: "https://yourdomain.com/icon.png", // URL иконки (обязательно HTTPS)
               description: "Secure Solana dApp for token management", // Описание
               links: {
-                twitter: "https://twitter.com/yourproject", // Соцсети
-                github: "https://github.com/yourproject",
+                twitter: "x.com/thetokentol", // Соцсети
               },
             }),
           },
