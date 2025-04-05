@@ -30,6 +30,7 @@ export const AppBar: FC = (props) => {
           </label>
 
           <div className="w-22 h-22 hidden sm:inline md:p-2">
+            <Link href="/create">
             <svg
               width="100%"
               height="22"
@@ -88,6 +89,7 @@ export const AppBar: FC = (props) => {
                 </clipPath>
               </defs>
             </svg>
+            </Link>
           </div>
         </div>
 

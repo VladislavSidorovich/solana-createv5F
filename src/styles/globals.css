@@ -24,3 +24,7 @@ a {
 .wallet-adapter-button:not([disabled]):hover {
   background-color: #707070;
 }
+
+:root{
+  background-color: hsla(var(--n) / var(--tw-bg-opacity));
+}
