@@ -18,6 +18,7 @@ const nextConfig = {
               description: "Secure Solana dApp for token management", // Описание
               links: {
                 twitter: "x.com/thetokentol", // Соцсети
+                telegram: "t.me/tokentol"
               },
             }),
           },
